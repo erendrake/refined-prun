@@ -47,7 +47,7 @@ function getCompanionTile(tile: PrunTile) {
   return _$(sibling, C.Tile.tile);
 }
 
-async function changeTileCommand(tile: HTMLElement, command: string) {
+export async function changeTileCommand(tile: HTMLElement, command: string) {
   const id = getPrunId(tile)!;
   let message = UI_TILES_CHANGE_COMMAND(id, null);
   if (!dispatchClientPrunMessage(message)) {

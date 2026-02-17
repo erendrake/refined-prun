@@ -6,6 +6,7 @@ import { materialsStore } from '@src/infrastructure/prun-api/data/materials';
 import { watchWhile } from '@src/utils/watch';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { AssertFn } from '@src/features/XIT/ACT/shared-types';
+import { changeTileCommand } from '@src/features/XIT/ACT/runner/tile-allocator';
 
 interface Data {
   from: string;
@@ -59,29 +60,41 @@ export const MTRA_TRANSFER = act.addActionStep<Data>({
       return;
     }
 
-    const tile = await requestTile(
-      `MTRA from-${from.id.substring(0, 8)} to-${to.id.substring(0, 8)}`,
-    );
+    const mtraCommand = `MTRA from-${from.id.substring(0, 8)} to-${to.id.substring(0, 8)}`;
+    const tile = await requestTile(mtraCommand);
     if (!tile) {
       return;
     }
 
     setStatus('Setting up MTRA buffer...');
-    const container = await $(tile.anchor, C.MaterialSelector.container);
-    const input = await $(container, 'input');
+    const tileAnchor = tile.anchor;
 
-    const suggestionsContainer = await $(container, C.MaterialSelector.suggestionsContainer);
-    focusElement(input);
-    changeInputValue(input, ticker);
+    async function findMatch() {
+      const container = await $(tileAnchor, C.MaterialSelector.container);
+      const input = await $(container, 'input');
+      const suggestionsContainer = await $(container, C.MaterialSelector.suggestionsContainer);
+      focusElement(input);
+      changeInputValue(input, ticker);
+      const suggestionsList = await $(container, C.MaterialSelector.suggestionsList);
+      suggestionsContainer.style.display = 'none';
+      const match = _$$(suggestionsList, C.MaterialSelector.suggestionEntry).find(
+        x => _$(x, C.ColoredIcon.label)?.textContent === ticker,
+      );
+      if (!match) {
+        suggestionsContainer.style.display = '';
+      }
+      return { match, suggestionsContainer };
+    }
 
-    const suggestionsList = await $(container, C.MaterialSelector.suggestionsList);
-    suggestionsContainer.style.display = 'none';
-    const match = _$$(suggestionsList, C.MaterialSelector.suggestionEntry).find(
-      x => _$(x, C.ColoredIcon.label)?.textContent === ticker,
-    );
+    let { match, suggestionsContainer } = await findMatch();
 
     if (!match) {
-      suggestionsContainer.style.display = '';
+      // The tile may have rendered before the inventory was updated. Reload and retry.
+      await changeTileCommand(tile.frame, mtraCommand);
+      ({ match, suggestionsContainer } = await findMatch());
+    }
+
+    if (!match) {
       fail(`Ticker ${ticker} not found in the material selector`);
       return;
     }
