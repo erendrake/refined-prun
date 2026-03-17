@@ -17,6 +17,7 @@ import {
 
 act.addMaterialGroup<Config>({
   type: 'Resupply',
+  shortDescription: 'Calculate consumables needed based on burn rate',
   description: data => {
     if (!data.planet || data.days === undefined) {
       return '--';

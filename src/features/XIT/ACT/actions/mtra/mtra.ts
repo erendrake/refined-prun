@@ -13,6 +13,7 @@ import { resolveActionDest } from '@src/features/XIT/ACT/reference-utils';
 
 act.addAction<Config>({
   type: 'MTRA',
+  shortDescription: 'Transfer materials between storages at the same location',
   description: (action, config) => {
     if (!action.group || !action.origin || !action.dest) {
       return '--';
