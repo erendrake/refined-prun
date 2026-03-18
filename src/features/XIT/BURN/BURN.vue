@@ -11,6 +11,7 @@ import LoadingSpinner from '@src/components/LoadingSpinner.vue';
 import MaterialRow from '@src/features/XIT/BURN/MaterialRow.vue';
 import { useXitParameters } from '@src/hooks/use-xit-parameters';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
+import { materialsStore } from '@src/infrastructure/prun-api/data/materials';
 import { countDays, getSortedTickers } from '@src/features/XIT/BURN/utils';
 import InlineFlex from '@src/components/InlineFlex.vue';
 import { findWithQuery } from '@src/utils/find-with-query';
