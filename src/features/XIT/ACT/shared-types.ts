@@ -20,6 +20,7 @@ export interface MaterialGroupGenerateContext<TConfig>
   pkg: UserData.ActionPackageData;
   fullConfig: ActionPackageConfig;
   setStatus: (status: string) => void;
+  setPrices: (prices: Record<string, number>) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,9 +31,12 @@ export interface ActionStepGenerateContext<TConfig>
   config: TConfig;
   pkg: UserData.ActionPackageData;
   fullConfig: ActionPackageConfig;
+  packageName: string;
   fail: (message?: string) => void;
   assert: AssertFn;
   getMaterialGroup: (name: string | undefined) => Promise<Record<string, number> | undefined>;
+  getMaterialGroupPrices: (name: string | undefined) => Record<string, number> | undefined;
+  getMaterialGroupPlanet: (name: string | undefined) => string | undefined;
   emitStep: (step: ActionStep) => void;
   state: {
     WAR: {
