@@ -73,9 +73,8 @@ export const CXPO_SELL = act.addActionStep<Data>({
     assert(material, `Unknown material ${ticker}`);
 
     const availableAmount =
-      cxWarehouse.value.items
-        .map(x => x.quantity)
-        .find(x => x?.material.ticker === ticker)?.amount ?? 0;
+      cxWarehouse.value.items.map(x => x.quantity).find(x => x?.material.ticker === ticker)
+        ?.amount ?? 0;
     assert(
       availableAmount >= amount,
       `Cannot sell ${fixed0(amount)} ${ticker} (only ${fixed0(availableAmount)} in warehouse)`,
