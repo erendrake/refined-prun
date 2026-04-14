@@ -17,6 +17,8 @@ export interface ActionRunnerContext<T> {
 export interface MaterialGroupGenerateContext<TConfig>
   extends ActionRunnerContext<UserData.MaterialGroupData> {
   config: TConfig;
+  pkg: UserData.ActionPackageData;
+  fullConfig: ActionPackageConfig;
   setStatus: (status: string) => void;
   setPrices: (prices: Record<string, number>) => void;
 }
@@ -28,6 +30,8 @@ export interface ActionStepGenerateContext<TConfig>
   extends ActionRunnerContext<UserData.ActionData> {
   config: TConfig;
   packageName: string;
+  pkg: UserData.ActionPackageData;
+  fullConfig: ActionPackageConfig;
   fail: (message?: string) => void;
   assert: AssertFn;
   getMaterialGroup: (name: string | undefined) => Promise<Record<string, number> | undefined>;
@@ -55,5 +59,8 @@ export interface ActionStepExecuteContext<T> extends ActionRunnerContext<T> {
   requestTile: (Command: string) => Promise<PrunTile | undefined>;
 }
 
+export type DropdownOption = string | { label: string; value: string };
+
 export const configurableValue = 'Configure on Execution';
 export const groupTargetPrefix = 'group:';
+export const actionTargetPrefix = 'action:';
