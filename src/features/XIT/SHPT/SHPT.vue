@@ -3,7 +3,7 @@ import LoadingSpinner from '@src/components/LoadingSpinner.vue';
 import SectionHeader from '@src/components/SectionHeader.vue';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { contractsStore } from '@src/infrastructure/prun-api/data/contracts';
-import { getDestinationName } from '@src/infrastructure/prun-api/data/addresses';
+import { getAddressName } from '@src/infrastructure/prun-api/data/addresses';
 import { sumBy } from '@src/utils/sum-by';
 import { getStoreName } from '@src/features/XIT/SHPT/store-name';
 import ShipmentGroup from '@src/features/XIT/SHPT/ShipmentGroup.vue';
@@ -37,7 +37,7 @@ const storeGroups = computed<StoreGroup[]>(() => {
     const byDest = new Map<string, ShipmentItem[]>();
     for (const item of shipmentItems) {
       const destination = contractsStore.getDestinationByShipmentId(item.id);
-      const destName = getDestinationName(destination) ?? 'Unknown';
+      const destName = getAddressName(destination) ?? 'Unknown';
       let group = byDest.get(destName);
       if (!group) {
         group = [];

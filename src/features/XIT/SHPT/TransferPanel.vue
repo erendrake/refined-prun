@@ -5,7 +5,7 @@ import PrunButton from '@src/components/PrunButton.vue';
 import SectionHeader from '@src/components/SectionHeader.vue';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { contractsStore } from '@src/infrastructure/prun-api/data/contracts';
-import { getDestinationName } from '@src/infrastructure/prun-api/data/addresses';
+import { getAddressName } from '@src/infrastructure/prun-api/data/addresses';
 import { sumBy } from '@src/utils/sum-by';
 import { fixed2 } from '@src/utils/format';
 import { getStoreName, getColocatedStores } from '@src/features/XIT/SHPT/store-name';
@@ -46,7 +46,7 @@ const destinationOptions = computed(() => {
       continue;
     }
     const dest = contractsStore.getDestinationByShipmentId(item.id);
-    dests.add(getDestinationName(dest) ?? 'Unknown');
+    dests.add(getAddressName(dest) ?? 'Unknown');
   }
   return [...dests].sort();
 });
@@ -104,7 +104,7 @@ const filteredItems = computed<ShipmentItem[]>(() => {
     .filter(x => x.type === 'SHIPMENT')
     .map(x => {
       const dest = contractsStore.getDestinationByShipmentId(x.id);
-      const destName = getDestinationName(dest) ?? 'Unknown';
+      const destName = getAddressName(dest) ?? 'Unknown';
       const contract = contractsStore.getByShipmentId(x.id);
       return {
         id: x.id,

@@ -5,7 +5,8 @@ export const useTileState = createTileStateHook({
   yellow: true,
   green: true,
   inf: true,
-  workforce: true,
-  production: true,
+  prod: true,
+  wf: true,
+  io: false,
   expand: [] as string[],
 });
