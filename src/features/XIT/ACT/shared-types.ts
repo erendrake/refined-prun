@@ -38,12 +38,14 @@ export interface ActionStepGenerateContext<TConfig>
   config: TConfig;
   pkg: UserData.ActionPackageData;
   fullConfig: ActionPackageConfig;
+  packageName: string;
   fail: (message?: string) => void;
   assert: AssertFn;
   getMaterialGroup: (name: string | undefined) => Promise<Record<string, number> | undefined>;
   // Per-ticker prices the named group supplied (empty when none). Must be
   // called after getMaterialGroup, which is what populates the prices.
   getMaterialGroupPrices: (name: string | undefined) => MaterialGroupPrices;
+  getMaterialGroupPlanet: (name: string | undefined) => string | undefined;
   emitStep: (step: ActionStep) => void;
   state: {
     WAR: {
