@@ -9,14 +9,26 @@ import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { shipsStore } from '@src/infrastructure/prun-api/data/ships';
 
+// Ship stores no longer carry a name in the game payload, so resolve the ship
+// via its store's addressableId and label it by user name (falling back to the
+// always-present registration).
+function shipLabel(storage: PrunApi.Store) {
+  const ship = shipsStore.getById(storage.addressableId);
+  if (!ship) {
+    return 'Unknown ship';
+  }
+  // A ship's user name can be empty, so fall back to the registration.
+  return ship.name.length > 0 ? ship.name : ship.registration;
+}
+
 export function serializeStorage(storage: PrunApi.Store) {
   switch (storage.type) {
     case 'STL_FUEL_STORE':
-      return storage.name + ' STL Store';
+      return shipLabel(storage) + ' STL Store';
     case 'FTL_FUEL_STORE':
-      return storage.name + ' FTL Store';
+      return shipLabel(storage) + ' FTL Store';
     case 'SHIP_STORE':
-      return storage.name + ' Cargo';
+      return shipLabel(storage) + ' Cargo';
     case 'STORE': {
       const site = sitesStore.getById(storage.addressableId);
       return getEntityNameFromAddress(site?.address) + ' Base';
@@ -49,18 +61,29 @@ export function deserializeStorage(serializedName: string | undefined) {
   }
   name = extractName(serializedName, 'Cargo');
   if (name) {
-    return storagesStore.getByName(name)?.find(x => x.type === 'SHIP_STORE');
+    return findShipStore(name, 'SHIP_STORE');
   }
   name = extractName(serializedName, 'FTL Store');
   if (name) {
-    return storagesStore.getByName(name)?.find(x => x.type === 'FTL_FUEL_STORE');
+    return findShipStore(name, 'FTL_FUEL_STORE');
   }
   name = extractName(serializedName, 'STL Store');
   if (name) {
-    return storagesStore.getByName(name)?.find(x => x.type === 'STL_FUEL_STORE');
+    return findShipStore(name, 'STL_FUEL_STORE');
   }
 
   return undefined;
+}
+
+// Resolve a ship store from a serialized label. Ship stores have a null name,
+// so match the ship by user name (or registration) and look its store up by
+// addressableId, which equals the ship id.
+function findShipStore(label: string, type: PrunApi.StoreType) {
+  const ship = shipsStore.getByName(label) ?? shipsStore.getByRegistration(label);
+  if (!ship) {
+    return undefined;
+  }
+  return storagesStore.getByAddressableId(ship.id)?.find(x => x.type === type);
 }
 
 function extractName(name: string, suffix: string) {
