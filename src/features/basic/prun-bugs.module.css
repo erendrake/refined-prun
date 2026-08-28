@@ -105,3 +105,9 @@
   -webkit-user-select: none;
   user-select: none;
 }
+
+.scrollview {
+  margin-bottom: 0px !important;
+  margin-right: 0px !important;
+  scrollbar-width: none;
+}
