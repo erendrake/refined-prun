@@ -6,11 +6,7 @@ import { CXPO_SELL } from '@src/features/XIT/ACT/action-steps/CXPO_SELL';
 import { fixed0, fixed02 } from '@src/utils/format';
 import { fillAmount } from '@src/features/XIT/ACT/actions/cx-sell/utils';
 import { AssertFn, configurableValue } from '@src/features/XIT/ACT/shared-types';
-import {
-  atSameLocation,
-  deserializeStorage,
-  serializeStorage,
-} from '@src/features/XIT/ACT/actions/utils';
+import { deserializeStorage, serializeStorage } from '@src/features/XIT/ACT/actions/utils';
 import { storagesStore } from '@src/infrastructure/prun-api/data/storage';
 import { exchangesStore } from '@src/infrastructure/prun-api/data/exchanges';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
