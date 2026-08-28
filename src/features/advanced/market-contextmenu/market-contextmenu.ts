@@ -48,7 +48,7 @@ export const store = reactive({
     }
   },
   checkClickedMenu(event: MouseEvent): void {
-    const target = event.target as Node;
+    const target = event.target as Node | null;
     if (target && !this.menuElement.contains(target)) {
       this.hideMenu();
     }
@@ -64,7 +64,7 @@ async function init() {
   document.addEventListener('contextmenu', event => {
     const container = (event.target as HTMLElement).closest(
       `.${C.ColoredIcon.container}`,
-    ) as HTMLElement;
+    ) as HTMLElement | null;
     if (container) {
       event.preventDefault();
       const ticker = refTextContent(container);

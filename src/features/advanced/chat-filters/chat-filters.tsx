@@ -19,15 +19,13 @@ function onTileReady(tile: PrunTile) {
 
   function setState(set: (state: UserData.SystemMessages) => void) {
     let newState = state.value;
-    if (!newState) {
-      newState = {
-        chat: tile.fullCommand,
-        hideFilterBar: false,
-        hideJoined: false,
-        hideDeleted: false,
-        hideTimestamp: false,
-      };
-    }
+    newState ??= {
+      chat: tile.fullCommand,
+      hideFilterBar: false,
+      hideJoined: false,
+      hideDeleted: false,
+      hideTimestamp: false,
+    };
     set(newState);
     const shouldSave =
       newState.hideFilterBar ||
