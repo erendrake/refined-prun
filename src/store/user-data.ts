@@ -1,6 +1,7 @@
 import { deepFreeze } from '@src/utils/deep-freeze';
 
 export const initialUserData = deepFreeze({
+  configVersion: '',
   firstLoad: Date.now(),
   tileState: {} as Record<string, UserData.TileState | undefined>,
   settings: {
