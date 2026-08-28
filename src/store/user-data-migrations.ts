@@ -17,6 +17,12 @@ function isCheckpoint(entry: MigrationEntry): entry is Checkpoint {
 // The date is for reference only, and it does not affect migration order.
 const migrations: MigrationEntry[] = [
   [
+    '28.08.2026 Add context menu exchange',
+    userData => {
+      userData.settings.contextMenuExchange = 'AI1';
+    },
+  ],
+  [
     '28.08.2026 Add config version',
     userData => {
       userData.configVersion = config.version;
