@@ -453,6 +453,18 @@ showSuccessOverlay(event, 'Package renamed.');
 
 ---
 
+## Native Drag and Drop
+
+Do not read the dragged item from `dataTransfer` in a `drop` handler. In Chrome on Windows, a real mouse drag can arrive at the drop target with empty `dataTransfer.types`, so `getData()` returns an empty string. Keep the dragged item in module state at `dragstart`, read it at `drop`, and clear it at `dragend`. See `src/features/XIT/DSP/drag.ts` and `src/features/advanced/contd-import-export/drag.ts`.
+
+Still call `setData('text/plain', ...)` at `dragstart`.
+
+In `dragenter` and `dragover` on the drop target, call `preventDefault()` and `stopPropagation()`, and set `dropEffect`. This stops the game's handler from setting `dropEffect` to `none`.
+
+Test drag features with a real mouse. A drag injected through the browser debugger (automation tools) keeps the payload and does not show this failure.
+
+---
+
 ## CSS
 
 Each feature needing CSS gets a `.module.css` alongside the `.ts`. `applyCssRule` and `C` are auto-imported.
