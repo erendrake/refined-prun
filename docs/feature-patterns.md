@@ -455,7 +455,7 @@ showSuccessOverlay(event, 'Package renamed.');
 
 ## Native Drag and Drop
 
-Do not read the dragged item from `dataTransfer` in a `drop` handler. In Chrome on Windows, a real mouse drag can arrive at the drop target with empty `dataTransfer.types`, so `getData()` returns an empty string. Keep the dragged item in module state at `dragstart`, read it at `drop`, and clear it at `dragend`. See `src/features/XIT/DSP/drag.ts` and `src/features/advanced/contd-import-export/drag.ts`.
+Do not read the dragged item from `dataTransfer` in a `drop` handler. A Chrome session on Windows with a pending browser update was seen to deliver real mouse drags with empty `dataTransfer.types` (clipboard copy failed in the same session), so `getData()` returned an empty string. A browser restart corrects that condition, but the pattern below does not depend on the payload. Keep the dragged item in module state at `dragstart`, read it at `drop`, and clear it at `dragend`. See `src/features/XIT/DSP/drag.ts` and `src/features/advanced/contd-import-export/drag.ts`.
 
 Still call `setData('text/plain', ...)` at `dragstart`.
 
