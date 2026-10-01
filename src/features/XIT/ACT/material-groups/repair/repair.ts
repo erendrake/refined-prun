@@ -3,8 +3,9 @@ import Edit from '@src/features/XIT/ACT/material-groups/repair/Edit.vue';
 import Configure from '@src/features/XIT/ACT/material-groups/repair/Configure.vue';
 import { sitesStore } from '@src/infrastructure/prun-api/data/sites';
 import { Config } from '@src/features/XIT/ACT/material-groups/repair/config';
-import { configurableValue } from '@src/features/XIT/ACT/shared-types';
+import { configurableValue, groupTargetPrefix } from '@src/features/XIT/ACT/shared-types';
 import { computeRepairBill } from '@src/features/XIT/ACT/material-groups/repair/bill';
+import { resolveGroupPlanet } from '@src/features/XIT/ACT/reference-utils';
 
 act.addMaterialGroup<Config>({
   type: 'Repair',
@@ -14,12 +15,15 @@ act.addMaterialGroup<Config>({
       return '--';
     }
 
+    const planetLabel = data.planet.startsWith(groupTargetPrefix)
+      ? `Same as: ${data.planet.slice(groupTargetPrefix.length)}`
+      : data.planet;
     const days = data.days;
     const daysLabel = days === configurableValue ? '?' : days;
     const daysPart = days !== undefined ? `older than ${daysLabel} day${days == 1 ? '' : 's'}` : '';
     const advanceDays = data.advanceDays ?? 0;
     const advanceLabel = advanceDays === configurableValue ? '?' : advanceDays;
-    return `Repair buildings on ${data.planet} ${daysPart} in ${advanceLabel} day${advanceDays == 1 ? '' : 's'}`;
+    return `Repair buildings on ${planetLabel} ${daysPart} in ${advanceLabel} day${advanceDays == 1 ? '' : 's'}`;
   },
   editComponent: Edit,
   configureComponent: Configure,
@@ -31,13 +35,24 @@ act.addMaterialGroup<Config>({
     (data.planet !== configurableValue || config.planet !== undefined) &&
     (data.days !== configurableValue || config.days !== undefined) &&
     (data.advanceDays !== configurableValue || config.advanceDays !== undefined),
-  generateMaterialBill: async ({ data, config, log }) => {
+  generateMaterialBill: async ({ data, config, pkg, fullConfig, log }) => {
     if (!data.planet) {
       log.error('Resupply planet is not configured');
       return undefined;
     }
 
-    const planet = data.planet === configurableValue ? config.planet : data.planet;
+    let planet: string | undefined;
+    if (data.planet === configurableValue) {
+      planet = config.planet;
+    } else if (data.planet.startsWith(groupTargetPrefix)) {
+      planet = resolveGroupPlanet(data.planet, pkg, fullConfig);
+      if (!planet) {
+        log.error(`Failed to resolve planet reference: ${data.planet}`);
+        return undefined;
+      }
+    } else {
+      planet = data.planet;
+    }
     const site = sitesStore.getByPlanetNaturalIdOrName(planet);
     if (!site?.platforms) {
       log.error('Missing data on repair planet');

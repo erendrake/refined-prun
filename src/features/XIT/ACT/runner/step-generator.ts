@@ -2,7 +2,9 @@ import {
   ActionPackageConfig,
   ActionStep,
   configurableValue,
+  groupTargetPrefix,
 } from '@src/features/XIT/ACT/shared-types';
+import { resolveGroupPlanet } from '@src/features/XIT/ACT/reference-utils';
 import { Logger } from '@src/features/XIT/ACT/runner/logger';
 import { warehousesStore } from '@src/infrastructure/prun-api/data/warehouses';
 import { exchangesStore } from '@src/infrastructure/prun-api/data/exchanges';
@@ -49,6 +51,8 @@ export class StepGenerator {
           config: actionConfig,
           packageName: pkg.global.name,
           preview,
+          pkg,
+          fullConfig: config,
           log,
           fail: message => {
             if (message) {
@@ -99,7 +103,13 @@ export class StepGenerator {
       this.log.error('Unrecognized material group');
       return undefined;
     }
-    const planet = group.planet;
+    const planet = resolveGroupPlanet(group.planet, pkg, config);
+    if (group.planet?.startsWith(groupTargetPrefix)) {
+      if (!planet) {
+        this.log.error(`Material group [${name}] planet reference is not resolved`);
+      }
+      return planet;
+    }
     if (!planet) {
       this.log.warning(
         `Material group [${name}] has no planet configured; SFC destination will not be filled`,
@@ -144,6 +154,8 @@ export class StepGenerator {
     return await info.generateMaterialBill({
       data: group,
       config: groupConfig,
+      pkg,
+      fullConfig: config,
       log: new Logger((tag, message) =>
         this.log.logMessage(
           tag,

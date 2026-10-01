@@ -9,10 +9,15 @@ import { OPEN_SFC } from '@src/features/XIT/ACT/action-steps/OPEN_SFC';
 import { OPEN_BRA } from '@src/features/XIT/ACT/action-steps/OPEN_BRA';
 import { atSameLocation, deserializeStorage } from '@src/features/XIT/ACT/actions/utils';
 import { Config, CX_BUY_ONLY_DEST } from '@src/features/XIT/ACT/actions/mtra/config';
-import { AssertFn, configurableValue } from '@src/features/XIT/ACT/shared-types';
+import {
+  AssertFn,
+  actionTargetPrefix,
+  configurableValue,
+} from '@src/features/XIT/ACT/shared-types';
 import { generateAgentIds } from '@src/features/XIT/ACT/agent-sync';
 import { getPlanetName } from '@src/core/planet-name';
 import { buildOffloadPackage } from '@src/features/XIT/ACT/actions/mtra/offload-package';
+import { resolveActionDest } from '@src/features/XIT/ACT/reference-utils';
 
 act.addAction<Config>({
   type: 'MTRA',
@@ -26,10 +31,14 @@ act.addAction<Config>({
       action.origin == configurableValue
         ? (config?.origin ?? 'configured location')
         : action.origin;
-    const dest =
-      action.dest == configurableValue
-        ? (config?.destination ?? 'configured location')
-        : action.dest;
+    let dest: string;
+    if (action.dest.startsWith(actionTargetPrefix)) {
+      dest = `Same as: ${action.dest.slice(actionTargetPrefix.length)} dest`;
+    } else if (action.dest == configurableValue) {
+      dest = config?.destination ?? 'configured location';
+    } else {
+      dest = action.dest;
+    }
     if (dest === CX_BUY_ONLY_DEST) {
       return `CX Buy only [${action.group}] from ${origin} (no transfer)`;
     }
@@ -47,8 +56,17 @@ act.addAction<Config>({
     );
   },
   generateSteps: async ctx => {
-    const { data, config, packageName, log, getMaterialGroup, getMaterialGroupPlanet, emitStep } =
-      ctx;
+    const {
+      data,
+      config,
+      packageName,
+      pkg,
+      fullConfig,
+      log,
+      getMaterialGroup,
+      getMaterialGroupPlanet,
+      emitStep,
+    } = ctx;
     const assert: AssertFn = ctx.assert;
 
     const PRUNPLANNER_PACKAGES = [
@@ -68,7 +86,13 @@ act.addAction<Config>({
     assert(maybeOrigin, 'Invalid origin');
     const origin = maybeOrigin;
 
-    const serializedDest = data.dest === configurableValue ? config?.destination : data.dest;
+    let serializedDest: string | undefined;
+    if (data.dest?.startsWith(actionTargetPrefix)) {
+      serializedDest = resolveActionDest(data.dest, pkg, fullConfig);
+      assert(serializedDest, `Failed to resolve destination reference: ${data.dest}`);
+    } else {
+      serializedDest = data.dest === configurableValue ? config?.destination : data.dest;
+    }
     if (serializedDest === CX_BUY_ONLY_DEST) {
       return;
     }

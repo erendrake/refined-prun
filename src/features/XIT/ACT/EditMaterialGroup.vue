@@ -8,9 +8,10 @@ import Passive from '@src/components/forms/Passive.vue';
 import SelectInput from '@src/components/forms/SelectInput.vue';
 import { act } from '@src/features/XIT/ACT/act-registry';
 
-const { add, group, onSave } = defineProps<{
+const { add, group, pkg, onSave } = defineProps<{
   add?: boolean;
   group: UserData.MaterialGroupData;
+  pkg: UserData.ActionPackageData;
   onSave?: () => void;
 }>();
 
@@ -58,7 +59,12 @@ function onSaveClick() {
       <Active label="Name" :error="nameError">
         <TextInput v-model="name" />
       </Active>
-      <Component :is="editFormComponent" v-if="editFormComponent" ref="editForm" :group="group" />
+      <Component
+        :is="editFormComponent"
+        v-if="editFormComponent"
+        ref="editForm"
+        :group="group"
+        :pkg="pkg" />
       <Commands>
         <PrunButton primary @click="onSaveClick">{{ add ? 'ADD' : 'SAVE' }}</PrunButton>
       </Commands>
