@@ -15,6 +15,7 @@ import { shipsStore } from '@src/infrastructure/prun-api/data/ships';
 import { fixed0 } from '@src/utils/format';
 import type { MaterialFilter } from '@src/features/XIT/ACT/material-groups/resupply/config';
 import { DispatchBaseConfig } from '@src/features/XIT/DSP/utils';
+import { draggedShipId } from '@src/features/XIT/DSP/drag';
 import { billTotals, MaterialBill } from '@src/features/XIT/ACT/material-bill';
 
 const { siteId, naturalId, planetName, config, overloaded, bill } = defineProps<{
@@ -108,7 +109,7 @@ function onDrop(event: DragEvent) {
   event.preventDefault();
   event.stopPropagation();
   dragOver.value = false;
-  const shipId = event.dataTransfer?.getData('text/plain');
+  const shipId = draggedShipId.value;
   if (!shipId) {
     return;
   }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PrunButton from '@src/components/PrunButton.vue';
 import type { DispatchBaseConfig, DispatchShip } from '@src/features/XIT/DSP/utils';
+import { draggedShipId } from '@src/features/XIT/DSP/drag';
 
 const { ships, baseConfigs } = defineProps<{
   ships: DispatchShip[];
@@ -37,6 +38,7 @@ function byShipLabel(a: DispatchShip, b: DispatchShip) {
 }
 
 function onDragStart(event: DragEvent, shipId: string) {
+  draggedShipId.value = shipId;
   event.dataTransfer?.setData('text/plain', shipId);
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = 'copyMove';
@@ -45,6 +47,10 @@ function onDragStart(event: DragEvent, shipId: string) {
   if (button && event.dataTransfer) {
     event.dataTransfer.setDragImage(button, button.offsetWidth / 2, button.offsetHeight / 2);
   }
+}
+
+function onDragEnd() {
+  draggedShipId.value = undefined;
 }
 </script>
 
@@ -67,7 +73,8 @@ function onDragStart(event: DragEvent, shipId: string) {
               <div
                 :class="$style.shipWrap"
                 draggable="true"
-                @dragstart="onDragStart($event, entry.ship.id)">
+                @dragstart="onDragStart($event, entry.ship.id)"
+                @dragend="onDragEnd">
                 <PrunButton primary :class="$style.shipButton">
                   <span :class="$style.shipLabel">{{ shipLabel(entry) }}</span>
                 </PrunButton>
